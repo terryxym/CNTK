@@ -345,4 +345,10 @@ namespace CNTK
             std::wstring m_fileName;
         };
     }
+
+    // Forward-declare test fixtures, so that they can be used as friends.
+    namespace Test 
+    {
+        struct DeviceSelectionTestFixture;
+    }
 }
