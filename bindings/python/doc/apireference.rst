@@ -11,5 +11,6 @@ Python API Reference
    Training session <cntk.training_session>
    Operators <cntk.ops>
    Utils <cntk.utils>
+   Debugging models <debug>
    Module reference <modules>
 
