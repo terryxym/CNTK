@@ -71,6 +71,9 @@ public:
     size_t MainNodeRank() const;
     bool IsMultiHost() const;
 
+    // Use GPUDirect RDMA support
+    int UseGpuGdr();
+
     // -----------------------------------------------------------------------
     // data-exchange functions (wrappers around MPI functions)
     // -----------------------------------------------------------------------
@@ -85,7 +88,7 @@ public:
     virtual int Iallreduce(const void* sendbuf, void* recvbuf, int count, MPI_Datatype datatype, MPI_Op op, /*MPI_Comm comm,*/ MPI_Request* request);
     virtual int Abort(int errorcode);
     virtual int Error_string(int errorcode, char* string, int* resultlen);
-
+    
     // allreduce of a vector
     virtual void AllReduce(std::vector<size_t>& accumulator) const;
     virtual void AllReduce(std::vector<int>& accumulator) const;
@@ -165,6 +168,8 @@ public:
     bool UsingAllNodes() const;
     size_t MainNodeRank() const;
     bool IsMultiHost() const;
+    // Use GPUDirect RDMA
+    int UseGpuGdr();
 
     // -----------------------------------------------------------------------
     // data-exchange functions (wrappers around MPI functions)
@@ -681,6 +686,15 @@ int MPIWrapperMpi::Error_string(int errorcode, char* str, int* resultlen)
     return MPI_Error_string(errorcode, str, resultlen);
 }
 
+int MPIWrapperMpi::UseGpuGdr()
+{
+    // Only support GPUDirect RDMA on Unix and built with GDR
+#if defined(USE_CUDA_GDR) && defined(__unix__)
+    return 1;
+#endif
+    return 0;
+}
+
 size_t MPIWrapperMpi::NumNodesInUse() const
 {
     return m_numNodesInUse;
@@ -985,6 +999,11 @@ MPIWrapperEmpty::~MPIWrapperEmpty()
 bool MPIWrapperEmpty::IsMultiHost() const
 {
     return false;
+}
+
+int MPIWrapperEmpty::UseGpuGdr()
+{
+    return 0;
 }
 
 int MPIWrapperEmpty::Finalize(void)
