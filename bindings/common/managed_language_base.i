@@ -54,7 +54,7 @@
 // It seems that SWIG does not understand %$isstruct.
 #define %ignore_struct %rename("$ignore", fullname=1)
 
-// Ignore things in CNTKLibrary.h that are not exposed for C# Eval.
+// Ignore things in CNTKLibrary.h that are not exposed for C# and Java Eval.
 %ignore CNTK::NDShape::NDShape(const std::initializer_list<size_t>& dimensions);
 
 %ignore_function CNTK::Internal::GenerateUid;
@@ -245,10 +245,10 @@
 
 %ignore_struct std::hash<::CNTK::DistributedWorkerDescriptor>;
 
-// Todo: add correct typemap as they might be useful for C# in future.
+// Todo: add correct typemap as they might be useful for C# and Java in future.
 %ignore_function CNTK::NDMask::DataBuffer;
 
-// Ignore things in CNTKLibraryInternals.h that are not exposed for C# Eval.
+// Ignore things in CNTKLibraryInternals.h that are not exposed for C# and Java Eval.
 %ignore_class CNTK::Internal::PrimitiveFunction;
 %ignore_class CNTK::Internal::CompositeFunction;
 %ignore_function CNTK::Internal::MaxNumCPUThreadsSet;
