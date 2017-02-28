@@ -46,6 +46,7 @@ mpi_path=
 mpi_check=include/mpi.h
 
 # Cuda-aware MPI
+# OPENMPI can auto-detect but not MVAPICH2
 cuda_gdr=no
 default_cuda_gdr=$cuda_gdr
 

@@ -330,9 +330,17 @@ private:
                     reductionBuffer = m_intermediateCPUBuffers[allReduceIndex].get();
                 }
 
-                m_mpi->Iallreduce(MPI_IN_PLACE, reductionBuffer, (i == -1) ? m_aggregationBuffer->GetNumElements() : gradients[i]->GetNumElements(),
-                    MPIWrapper::GetDataType(reductionBuffer), MPI_SUM, &allReduceRequests.back()) || MpiFail("MPI_Iallreduce");
-                allReduceIndex++;
+                if (m_mpi->UseGpuGdr() == 0)
+                {
+                    m_mpi->Iallreduce(MPI_IN_PLACE, reductionBuffer, (i == -1) ? m_aggregationBuffer->GetNumElements() : gradients[i]->GetNumElements(),
+                        MPIWrapper::GetDataType(reductionBuffer), MPI_SUM, &allReduceRequests.back()) || MpiFail("MPI_Iallreduce");
+                    allReduceIndex++;
+                }
+                // TODO: Remove this when MPI_Iallreduce with CUDA - aware is supported
+                else
+                {
+                    m_mpi->AllReduce(reductionBuffer, (i == -1) ? m_aggregationBuffer->GetNumElements() : gradients[i]->GetNumElements());
+                }
             }
         } 
         else
@@ -373,14 +381,15 @@ private:
         {
             m_nccl.Sync();
         }
-        else
+        // TODO: Remove this when MPI_Iallreduce with CUDA-aware is supported 
+        else if (m_mpi->UseGpuGdr() == 0)
         {
             // Wait for the allreduce operations to finish and initiate transfer back to the GPU if needed
             size_t gpuDataTransfersIdx = 0; // Index of allReduceRequest for each un-packed gradient
             for (size_t i : m_gradientIndexToAggregate)
             {
                 m_mpi->Wait(&allReduceRequests[gpuDataTransfersIdx], MPI_STATUSES_IGNORE) || MpiFail("MPI_Wait");
-                if (m_mpi->UseGpuGdr() == 0 && deviceId != CPUDEVICE)
+                if (deviceId != CPUDEVICE)
                 {
                     m_gpuDataTransferers[gpuDataTransfersIdx]->CopyCPUToGPUAsync(m_intermediateCPUBuffers[gpuDataTransfersIdx].get(),
                         (i == -1) ? m_aggregationBuffer->GetNumElements() : gradients[i]->GetNumElements(),
@@ -390,7 +399,7 @@ private:
             }
 
             // Wait for copy data from CPU to GPU, if not running on CPU and not NCCL enabled
-            if (m_mpi->UseGpuGdr() == 0 && deviceId != CPUDEVICE)
+            if (deviceId != CPUDEVICE)
             {
                 for (size_t i = 0; i < m_gradientIndexToAggregate.size(); i++)
                     m_gpuDataTransferers[i]->WaitForCopyCPUToGPUAsync();
