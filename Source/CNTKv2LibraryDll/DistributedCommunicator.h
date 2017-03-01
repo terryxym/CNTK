@@ -7,6 +7,7 @@
 
 #include "CNTKLibrary.h"
 #include "Constants.h"
+#include "MPIWrapper.h"
 #include <MatrixQuantizerImpl.h>
 
 namespace Microsoft { namespace MSR { namespace CNTK {
@@ -127,5 +128,8 @@ namespace CNTK
 
         template <typename ElemType>
         void unpackFromContinousBuffer(Microsoft::MSR::CNTK::Matrix<ElemType>* aggregationBuffer, const std::vector<NDArrayViewPtr>& outputValues, std::vector<size_t>& packedGradientsIndex);
+
+        template <typename ElemType>
+        void allReduce(ElemType* inputData, ElemType* outputData, size_t numElements, MPI_Request* allReduceRequest);
     };
 }
