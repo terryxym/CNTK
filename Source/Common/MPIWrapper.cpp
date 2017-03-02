@@ -691,8 +691,9 @@ int MPIWrapperMpi::UseGpuGdr()
     // Only support GPUDirect RDMA on Unix and built with GDR
 #if defined(USE_CUDA_GDR) && defined(__unix__)
     return 1;
-#endif
+#else
     return 0;
+#endif
 }
 
 size_t MPIWrapperMpi::NumNodesInUse() const
