@@ -1307,7 +1307,7 @@ namespace Microsoft {
                         if (nSamplesSinceLastModelSync >= m_nSyncSamplesPerWorker[epochNumber])
                         {
                             //m_pASGDHelper->PushAndPullModel(learnableNodes, nSamplesSinceLastModelSync);
-                            m_pASGDHelper->PushAndPullModel(learnableNodes, learnRatePerSample, m_lambda, m_momentum, nSamplesSinceLastModelSync);
+                            m_pASGDHelper->PushAndPullModel(learnableNodes, learnRatePerSample, m_lambda, m_momentum, m_rho, nSamplesSinceLastModelSync);
                             nSamplesSinceLastModelSync = 0;
                         }
                     }
@@ -1455,7 +1455,7 @@ namespace Microsoft {
                 if (useAsyncGradientAggregation && (m_mpi->NumNodesInUse() > 1))
                 {
                     //m_pASGDHelper->PushAndPullModel(learnableNodes, nSamplesSinceLastModelSync);
-                    m_pASGDHelper->PushAndPullModel(learnableNodes, learnRatePerSample, m_lambda, m_momentum, nSamplesSinceLastModelSync);
+                    m_pASGDHelper->PushAndPullModel(learnableNodes, learnRatePerSample, m_lambda, m_momentum, m_rho, nSamplesSinceLastModelSync);
                     nSamplesSinceLastModelSync = 0;
                 }
 
@@ -3032,8 +3032,10 @@ namespace Microsoft {
                             m_nSyncSamplesPerWorker = configDataParallelASGD(L"syncPeriod", ConfigRecordType::Array(intargvector(vector<int>{256})));
                             m_isAsyncBufferEnabled = configDataParallelASGD(L"UsePipeline", false);
                             m_isSimulateMA = configDataParallelASGD(L"SimModelAverage", false); // using parameter server-based version of ModelAveragingSGD
-                            m_lambda = configDataParallelASGD(L"Lambda", (double)1.0);
+                            m_lambda = configDataParallelASGD(L"Lambda", (double)0.0);
                             m_momentum = configDataParallelASGD(L"Momentum", (double)0.0);
+                            m_rho = configDataParallelASGD(L"Rho", (double)0.0);
+
                             if (configDataParallelASGD.Exists(L"AdjustLearningRateAtBeginning")) // adjust learning rate per m_adjustNumInBatch minibatchs until to original one,
                                                                                                  // this option could be used to takcle the unstableness of DataParallelASGD if you get a chance
                             {

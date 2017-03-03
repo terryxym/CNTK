@@ -199,7 +199,7 @@ namespace Microsoft {
                 }
 
                 //bool PushAndPullModel(const std::list<ComputationNodeBasePtr> & learnableNodes, size_t sampleSinceLastSynced) override
-                bool PushAndPullModel(const std::list<ComputationNodeBasePtr> & learnableNodes, double lr, double lambda, double mom, size_t sampleSinceLastSynced) override
+                bool PushAndPullModel(const std::list<ComputationNodeBasePtr> & learnableNodes, double lr, double lambda, double mom, double rho, size_t sampleSinceLastSynced) override
                 {
                     m_parameterSyncCounter++;
 
@@ -216,6 +216,7 @@ namespace Microsoft {
                         m_addOptions.at(i)->set_learning_rate((float)lr);
                         m_addOptions.at(i)->set_lambda((float)lambda);
                         m_addOptions.at(i)->set_momentum((float)mom);
+                        m_addOptions.at(i)->set_rho((float)rho);
                     }
 
                     // reset statics for profiling

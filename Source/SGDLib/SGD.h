@@ -297,6 +297,7 @@ namespace Microsoft {
 
                 double m_lambda;
                 double m_momentum;
+                double m_rho;
 
                 // sequence training
                 double m_hSmoothingWeight;
