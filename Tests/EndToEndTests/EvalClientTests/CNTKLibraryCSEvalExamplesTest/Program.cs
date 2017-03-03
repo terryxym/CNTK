@@ -22,12 +22,13 @@ namespace CNTKLibraryCSEvalExamples
 #else
             Console.WriteLine("======== Evaluate model on CPU using GPU build ========");
 #endif
-
             CNTKLibraryManagedExamples.EvaluationSingleImage(DeviceDescriptor.CPUDevice);
             CNTKLibraryManagedExamples.EvaluationBatchOfImages(DeviceDescriptor.CPUDevice);
             CNTKLibraryManagedExamples.EvaluateMultipleImagesInParallel(DeviceDescriptor.CPUDevice);
             CNTKLibraryManagedExamples.EvaluationSingleSequenceUsingOneHot(DeviceDescriptor.CPUDevice);
             CNTKLibraryManagedExamples.EvaluationBatchOfSequencesUsingOneHot(DeviceDescriptor.CPUDevice);
+            // It is sufficient to test loading model from memory buffer only on CPU.
+            CNTKLibraryManagedExamples.LoadModelFromMemory(DeviceDescriptor.CPUDevice);
 
             if (IsGPUAvailable())
             {
