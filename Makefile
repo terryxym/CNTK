@@ -51,8 +51,6 @@
 # TODO: Build static libraries for common dependencies that are shared by multiple 
 # targets, e.g. eval and CNTK.
 
-export
-
 ARCH=$(shell uname)
 
 ifndef BUILD_TOP
@@ -111,6 +109,7 @@ SEPARATOR = "=-----------------------------------------------------------="
 ALL:=
 ALL_LIBS:=
 PYTHON_LIBS:=
+JAVA_LIBS:=
 LIBS_FULLPATH:=
 SRC:=
 
@@ -1309,9 +1308,17 @@ ALL += python
 
 endif
 
+JAVA_SWIG_DIR=bindings/java/Swig
+GENERATED_JAVA_DIR=$(JAVA_SWIG_DIR)/com/microsoft/CNTK
+
 .PHONY: java
 java: $(JAVA_LIBS)
-	$(MAKE) -C bindings/java
+	#$(MAKE) -C bindings/java
+	rm -f $(GENERATED_JAVA_DIR)/*.java
+	$(SWIG_PATH)/swig -c++ -java -package com.microsoft.CNTK $(INCLUDEPATH:%=-I%) -Ibindings/common -outdir $(GENERATED_JAVA_DIR) $(JAVA_SWIG_DIR)/cntk_java.i
+	javac $(GENERATED_JAVA_DIR)/*.java
+	jar -cvf $(JAVA_SWIG_DIR)/cntk.jar $(JAVA_SWIG_DIR)/com
+	$(CXX) -shared $(COMMON_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -DSWIG $(INCLUDEPATH:%=-I%) $(JDK_INCLUDE_PATH:%=-I%) $(JAVA_SWIG_DIR)/cntk_java_wrap.cxx -Llib -lcntkmath -lcntklibrary-2.0 -L$(PROTOBUF_PATH)/lib -lprotobuf -o libCNTKJava.so
 
 ALL += java
 
