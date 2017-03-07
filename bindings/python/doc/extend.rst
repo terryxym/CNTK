@@ -1,14 +1,13 @@
 Extending CNTK
 ==============
 
-CNTK allows to implement custom operators in pure Python as so-called 'user
-functions'.
-
+CNTK provides extension possibilities through
+ - custom operators in pure Python as so-called 'user functions'
+ - custom learning algorithms (like SGD or Adam) as 'user learners'
 
 User functions
-==============
-
-Implement a custom operator in pure Python is simple matter of
+--------------
+Implementing a custom operator in pure Python is simple matter of
 
  - inheriting from :class:`~cntk.ops.functions.UserFunction`
  - implementing ``forward()`` and ``backward()``, whose signatures dependent on the number of inputs and outputs
@@ -48,10 +47,12 @@ tuple, strings, etc.)::
 
 This can now be used as a normal operator like::
 
+    from cntk import user_function
     s = user_function(MySigmoid(prev_node))
 
-Note that we cannot pass the `UserFunction` instance directly into the graph. 
-It is representing a primitive function, which we have to pass through `user_function()`.
+Note that we cannot pass the `UserFunction` instance directly into the graph.
+It is representing a primitive function, which we have to pass through
+`user_function()`.
 
 In case, the operator is initialized with multiple inputs, ``forward()`` 's
 ``argument`` will be a list of those inputs::
@@ -99,7 +100,7 @@ In addition, ``root_gradient`` in ``backward()`` is a dictionary of Variable to 
 root_gradient.
 
 Using user functions for debugging
-----------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 It is now easy to just plug user function nodes into the graph to support
 debugging. For instance, the following operator::
@@ -142,3 +143,34 @@ interesting behavior, for instance::
 Now, if the variance of the input tensor exceeds 1, we will be put into
 debugging mode and can start inspection.
 
+User learners
+-------------
+Implementing a custom learner in pure Python is accomplished by
+ - creating a class that inherits from :class:`cntk.learner.UserLearner`
+ - implementing its :meth:`~cntk.learner.UserLearner.update` method
+
+Here is an example, how normal stochastic gradient descent would be
+reimplemented::
+
+    from cntk.learner import UserLearner
+
+    class MySgd(UserLearner):
+
+        def __init__(self, parameters, lr_schedule):
+            super(MySgd, self).__init__(parameters, lr_schedule)
+
+        def update(self, gradient_values, training_sample_count, sweep_end):
+            eta = self.learning_rate() / training_sample_count
+            for p, g in gradient_values.items():
+                newp = p - eta * C.constant(g)
+                p.set_value(newp.eval(as_numpy=False).data())
+            return True
+
+The class ``MySgd`` could then be used as a normal learner, e.g.::
+
+    # z, ce, pe = <your model, loss and evaluation functions>
+    # lr_per_minibatch = <your learning rate specification>
+    trainer = Trainer(z, (ce, pe), MySgd(z.parameters, lr_per_minibatch))
+
+Before starting a new learner, though, please check out :mod:`cntk.learner`
+whether your learner is already available.
