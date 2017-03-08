@@ -115,7 +115,7 @@ def train_and_test(network, trainer, train_source, test_source, minibatch_size, 
         var_to_stream = input_map,
         checkpoint_config = CheckpointConfig(frequency=epoch_size, filename="ResNet_CIFAR10_DataAug", restore=False),
         progress_frequency=epoch_size,
-        cv_config = CrossValidationConfig(source=test_source, mb_size=16)
+        test_config = TestConfig(source=test_source, mb_size=16)
     ).train()
     
     if profiling:
