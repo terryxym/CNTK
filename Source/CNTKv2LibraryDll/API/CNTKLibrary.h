@@ -4229,6 +4229,8 @@ namespace CNTK
         ///
         CNTK_API void SummarizeTestProgress();
 
+        CNTK_API virtual ~Evaluator() {}
+
     private:
         template <typename T1, typename ...CtorArgTypes>
         friend std::shared_ptr<T1> MakeSharedObject(CtorArgTypes&& ...ctorArgs);
