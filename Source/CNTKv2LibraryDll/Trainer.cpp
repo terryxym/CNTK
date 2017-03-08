@@ -42,7 +42,6 @@ namespace CNTK
         if (m_combinedEvalFunction) // model is optional, since it may not be adding any information on top of lossFunction
             combinedFunctionArgs = m_combinedEvalFunction->Outputs();
 
-        combinedFunctionArgs.push_back(m_combinedEvalFunction);
         combinedFunctionArgs.push_back(m_lossFunction);
         if (!m_lossFunction->Output().DynamicAxes().empty())
         {
