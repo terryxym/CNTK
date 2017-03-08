@@ -54,7 +54,7 @@
 // It seems that SWIG does not understand %$isstruct.
 #define %ignore_struct %rename("$ignore", fullname=1)
 
-// Ignore things in CNTKLibrary.h that are not exposed for C# and Java Eval.
+// Ignore things in CNTKLibrary.h that are not exposed for C# Eval.
 %ignore CNTK::NDShape::NDShape(const std::initializer_list<size_t>& dimensions);
 
 %ignore_function CNTK::Internal::GenerateUid;
@@ -153,6 +153,7 @@
 %ignore_function CNTK::Times;
 %ignore_function CNTK::TransposeTimes;
 %ignore_function CNTK::CosineDistance;
+%ignore_function CNTK::CosineDistanceWithNegativeSamples;
 %ignore_function CNTK::BinaryCrossEntropy;
 %ignore_function CNTK::WeightedBinaryCrossEntropy;
 %ignore_function CNTK::SquaredError;
@@ -245,10 +246,10 @@
 
 %ignore_struct std::hash<::CNTK::DistributedWorkerDescriptor>;
 
-// Todo: add correct typemap as they might be useful for C# and Java in future.
+// Todo: add correct typemap as they might be useful for C# in future.
 %ignore_function CNTK::NDMask::DataBuffer;
 
-// Ignore things in CNTKLibraryInternals.h that are not exposed for C# and Java Eval.
+// Ignore things in CNTKLibraryInternals.h that are not exposed for C# Eval.
 %ignore_class CNTK::Internal::PrimitiveFunction;
 %ignore_class CNTK::Internal::CompositeFunction;
 %ignore_function CNTK::Internal::MaxNumCPUThreadsSet;
@@ -263,6 +264,7 @@
 %ignore_function CNTK::Internal::Scatter;
 %ignore_function CNTK::Internal::Slice;
 %ignore_function CNTK::Internal::ReduceElements;
+%ignore_function CNTK::Internal::CosineDistanceWithNegativeSamples;
 
 %ignore_function CNTK::Internal::EnableReversingTensorShapesInErrorMessages;
 %ignore_function CNTK::Internal::IsReversingTensorShapesInErrorMessagesEnabled;
@@ -288,6 +290,8 @@
 %ignore_function CNTK::Internal::AreEquivalent;
 %ignore_function CNTK::Internal::AreEqual;
 %ignore_function CNTK::PrintBuiltInfo;
+
+%ignore_class CNTK::Internal::TensorBoardFileWriter;
 
 // map the pointer to array
 %apply float INPUT[]  { float *dataBuffer }

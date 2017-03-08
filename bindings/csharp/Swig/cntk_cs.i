@@ -1,5 +1,4 @@
 %include <arrays_csharp.i>
-%include "managed_language_base.i"
 
 %rename (GetAllDevices) CNTK::DeviceDescriptor::AllDevices;
 %rename (GetCPUDevice) CNTK::DeviceDescriptor::CPUDevice;
