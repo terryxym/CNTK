@@ -1310,15 +1310,15 @@ endif
 
 JAVA_SWIG_DIR=bindings/java/Swig
 GENERATED_JAVA_DIR=$(JAVA_SWIG_DIR)/com/microsoft/CNTK
+JDK_BIN_PATH=$(JDK_PATH)/bin
 
 .PHONY: java
 java: $(JAVA_LIBS)
-	#$(MAKE) -C bindings/java
 	rm -f $(GENERATED_JAVA_DIR)/*.java
 	$(SWIG_PATH)/swig -c++ -java -package com.microsoft.CNTK $(INCLUDEPATH:%=-I%) -Ibindings/common -outdir $(GENERATED_JAVA_DIR) $(JAVA_SWIG_DIR)/cntk_java.i
-	javac $(GENERATED_JAVA_DIR)/*.java
-	jar -cvf $(JAVA_SWIG_DIR)/cntk.jar $(JAVA_SWIG_DIR)/com
-	$(CXX) -shared $(COMMON_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -DSWIG $(INCLUDEPATH:%=-I%) $(JDK_INCLUDE_PATH:%=-I%) $(JAVA_SWIG_DIR)/cntk_java_wrap.cxx -Llib -lcntkmath -lcntklibrary-2.0 -L$(PROTOBUF_PATH)/lib -lprotobuf -o libCNTKJava.so
+	$(JDK_BIN_PATH)/javac $(GENERATED_JAVA_DIR)/*.java
+	$(JDK_BIN_PATH)/jar -cvf $(JAVA_SWIG_DIR)/cntk.jar $(JAVA_SWIG_DIR)/com
+	$(CXX) -shared $(COMMON_FLAGS) $(CPPFLAGS) $(CXXFLAGS) -DSWIG $(INCLUDEPATH:%=-I%) $(JDK_INCLUDE_PATH:%=-I%) $(JAVA_SWIG_DIR)/cntk_java_wrap.cxx -L$(LIBDIR) -lcntkmath -lcntklibrary-2.0 -L$(PROTOBUF_PATH)/lib -lprotobuf -o $(LIBDIR)/libCNTKJava.so
 
 ALL += java
 
