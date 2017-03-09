@@ -2076,12 +2076,12 @@ namespace std {
 
 namespace CNTK
 {
-    /// 
+    ///
     /// Denotes a multi-dimensional array with an optional mask and is the actual data fed into or produced from a computation.
     /// The mask is typically lower dimensionality than the data, meaning data is masked in coarse individual sample units where
     /// sample shape is data.Shape().SubShape(0, data.Shape().Rank() - mask.Shape().Rank)
     /// Also, note that the size of the data's trailing mask.Shape().Rank() dimensions must match the mask shape dimensions.
-    /// 
+    ///
     class Value : public std::enable_shared_from_this<Value>
     {
         friend class Utils;
@@ -2163,10 +2163,10 @@ namespace CNTK
         /// The number of samples in the batch is the number of elements in batch divided by the size of shape (A runtime error occurs if the remainder is not zero).
         /// The created Value object contains a copy of the specified data in batch.
         /// Parameters:
-        ///     shape: the tensor shape of the Value object.
-        ///     batchData : the data to be contained in the Value object.
-        ///     device : on which device the Value object should be created.
-        ///     readOnly : the Value object is read - only if this flag is true.
+        ///     sampleShape: the tensor shape of the Value object.
+        ///     batchData: the data to be contained in the Value object.
+        ///     device: on which device the Value object should be created.
+        ///     readOnly: the Value object is read-only if this flag is true.
         ///
         template <typename ElementType>
         CNTK_API static ValuePtr CreateBatch(const NDShape& sampleShape, const std::vector<ElementType>& batchData, const DeviceDescriptor& device, bool readOnly = false);
@@ -2178,10 +2178,10 @@ namespace CNTK
         /// (A runtime error occurs if the remainder is not zero).
         /// Parameters:
         ///     shape: the tensor shape of the Value.
-        ///     sequenceData : the data to be contained in the Value.
-        ///     sequenceStartFlag : true indicates that it is a new sequence. false means a continuation of a previous sequence.
-        ///     device : on which device the Value object should be created.
-        ///     readOnly : the Value is read - only if this flag is true.
+        ///     sequenceData: the data to be contained in the Value.
+        ///     sequenceStartFlag: true indicates that it is a new sequence. false means a continuation of a previous sequence.
+        ///     device: on which device the Value object should be created.
+        ///     readOnly: the Value is read-only if this flag is true.
         ///
         template <typename ElementType>
         CNTK_API static ValuePtr CreateSequence(const NDShape& sampleShape, const std::vector<ElementType>& sequenceData, bool sequenceStartFlag, const DeviceDescriptor& device, bool readOnly = false);
@@ -2192,10 +2192,10 @@ namespace CNTK
         /// The sequence length is the number of elements in sequence divided by the size of shape(A runtime error occurs if the remainder is not zero).
         /// The created sequece is a new sequence.
         /// Parameters:
-        ///     shape: the tensor shape of the Value.
-        ///     sequenceData : the data to be contained in the Value.
-        ///     device : on which device the Value object should be created.
-        ///     readOnly : the Value is read - only if this flag is true.
+        ///     sampleShape: the tensor shape of the Value.
+        ///     sequenceData: the data to be contained in the Value.
+        ///     device: on which device the Value object should be created.
+        ///     readOnly: the Value is read-only if this flag is true.
         ///
         template <typename ElementType>
         static ValuePtr CreateSequence(const NDShape& sampleShape, const std::vector<ElementType>& sequenceData, const DeviceDescriptor& device, bool readOnly = false)
@@ -2210,11 +2210,11 @@ namespace CNTK
         /// The length of each sequence is the number of elements in the corresponding sequence of batchOfSequences divided by the size of shape.
         /// (A runtime error occurs if the remainder is not zero).
         /// Parameters:
-        ///     shape: the tensor shape of the Value.
-        ///     batchOfSequences : the data to be stored in the Value.The outer List represents a collection of sequences with variable length, and the inner List represents each individual sequence.
+        ///     sampleShape: the tensor shape of the Value.
+        ///     batchOfSequences: the data to be stored in the Value.The outer List represents a collection of sequences with variable length, and the inner List represents each individual sequence.
         ///     sequenceStartFlags: A collection of boolean value. Each element represent whether the correspoinding sequence in batchOfSequences is a new sequence (in case of true) or a continuation of a previous sequence (in case of false).
-        ///     device : on which device the Value should be created.
-        ///     readOnly : the Value is read - only if this flag is true.
+        ///     device: on which device the Value should be created.
+        ///     readOnly: the Value is read-only if this flag is true.
         ///
         template <typename ElementType>
         static ValuePtr CreateBatchOfSequences(const NDShape& sampleShape, const std::vector<std::vector<ElementType>>& batchOfSequences, const std::vector<bool>& sequenceStartFlags, const DeviceDescriptor& device, bool readOnly = false)
@@ -2230,10 +2230,10 @@ namespace CNTK
         /// (A runtime error occurs if the remainder is not zero).
         /// Each sequence in batchOfSequences is a new sequence.
         /// Parameters:
-        ///     shape: the tensor shape of the Value.
+        ///     sampleShape: the tensor shape of the Value.
         ///     batchOfSequences : the data to be stored in the Value.The outer List represents a collection of sequences with variable length, and the inner List represents each individual sequence.
         ///     device : on which device the Value should be created.
-        ///     readOnly : the Value is read - only if this flag is true.
+        ///     readOnly : the Value is read-only if this flag is true.
         ///
         template <typename ElementType>
         static ValuePtr CreateBatchOfSequences(const NDShape& sampleShape, const std::vector<std::vector<ElementType>>& batchOfSequences, const DeviceDescriptor& device, bool readOnly = false)
@@ -2247,10 +2247,10 @@ namespace CNTK
         /// The number of samples in the batch is the number of elements in batch.
         /// Parameters:
         ///     ElementType: data type of the created Value object. Currently, float and double are supported.
-        ///     dimension : the size of dimension of the one - hot vector.
+        ///     dimension : the size of dimension of the one-hot vector.
         ///     batchData : the collection of indexes representing the batch of samples.
         ///     device : on which device the Value object should be created.
-        ///     readOnly : the Value is read - only if this flag is true.
+        ///     readOnly : the Value is read-only if this flag is true.
         ///
         template <typename ElementType>
         CNTK_API static ValuePtr CreateBatch(size_t dimension, const std::vector<size_t>& batchData, const DeviceDescriptor& device, bool readOnly = false);
@@ -2262,11 +2262,11 @@ namespace CNTK
         /// The sequence length is the number of elements in sequence.
         /// Parameters:
         ///     ElementType: data type of the created Value object.Currently, float and double are supported.
-        ///     dimension : the size of dimension of the one - hot vector.
-        ///     sequenceData : the collection of indexes representing the sequence of samples.
-        ///     sequenceStartFlag : true indicates that it is a new sequence. false means a continuation of a previous sequence.
-        ///     device : on which device the Value object should be created.
-        ///     readOnly : the Value is read - only if this flag is true.
+        ///     dimension: the size of dimension of the one-hot vector.
+        ///     sequenceData: the collection of indexes representing the sequence of samples.
+        ///     sequenceStartFlag: true indicates that it is a new sequence. false means a continuation of a previous sequence.
+        ///     device: on which device the Value object should be created.
+        ///     readOnly: the Value is read-only if this flag is true.
         ///
         template <typename ElementType>
         CNTK_API static ValuePtr CreateSequence(size_t dimension, const std::vector<size_t>& sequenceData, bool sequenceStartFlag, const DeviceDescriptor& device, bool readOnly = false);
@@ -2278,10 +2278,10 @@ namespace CNTK
         /// The created sequence is a new sequence.
         /// Parameters:
         ///     ElementType: data type of the created Value object.Currently, float and double are supported.
-        ///     dimension : the size of dimension of the one - hot vector.
-        ///     sequenceData : the collection of indexes representing the sequence of samples.
-        ///     device : on which device the Value object should be created.
-        ///     readOnly : the Value is read - only if this flag is true.
+        ///     dimension: the size of dimension of the one-hot vector.
+        ///     sequenceData: the collection of indexes representing the sequence of samples.
+        ///     device: on which device the Value object should be created.
+        ///     readOnly: the Value is read-only if this flag is true.
         ///
         template <typename ElementType>
         static ValuePtr CreateSequence(size_t dimension, const std::vector<size_t>& sequenceData, const DeviceDescriptor& device, bool readOnly = false)
@@ -2296,11 +2296,11 @@ namespace CNTK
         /// The length of each sequence is the number of elements of the corresponding sequence in the inner vector of batchOfSequences.
         /// Parameters:
         ///     ElementType: data type of the created Value object.Currently, float and double are supported.
-        ///     dimension : the size of dimension of the one - hot vector.
-        ///     batchOfSequences : the collection of indexes representing sequences of samples.The outer List represents a collection of sequences with variable length, and the inner List represents each individual sequence.
-        ///     sequenceStartFlags : A collection of boolean value.Each element represent whether the correspoinding sequence in batchOfSequences is a new sequence(in case of true) or a continuation of a previous sequence(in case of false).
-        ///     device : on which device the Value object should be created.
-        ///     readOnly : the Value is read - only if this flag is true.
+        ///     dimension: the size of dimension of the one-hot vector.
+        ///     batchOfSequences: the collection of indexes representing sequences of samples.The outer List represents a collection of sequences with variable length, and the inner List represents each individual sequence.
+        ///     sequenceStartFlags: A collection of boolean value.Each element represent whether the correspoinding sequence in batchOfSequences is a new sequence(in case of true) or a continuation of a previous sequence(in case of false).
+        ///     device: on which device the Value object should be created.
+        ///     readOnly: the Value is read-only if this flag is true.
         ///
         template <typename ElementType>
         static ValuePtr CreateBatchOfSequences(size_t dimension, const std::vector<std::vector<size_t>>& batchOfSequences, const std::vector<bool>& sequenceStartFlags, const DeviceDescriptor& device, bool readOnly = false)
@@ -2316,15 +2316,50 @@ namespace CNTK
         /// Each sequence in batchOfSequences is a new sequence.
         /// Parameters:
         ///     ElementType: data type of the created Value object.Currently, float and double are supported.
-        ///     dimension : the size of dimension of the one - hot vector.
-        ///     batchOfSequences : the collection of indexes representing sequences of samples.The outer List represents a collection of sequences with variable length, and the inner List represents each individual sequence.
-        ///     device : on which device the Value object should be created.
-        ///     readOnly : the Value is read - only if this flag is true.
+        ///     dimension: the size of dimension of the one-hot vector.
+        ///     batchOfSequences: the collection of indexes representing sequences of samples.The outer List represents a collection of sequences with variable length, and the inner List represents each individual sequence.
+        ///     device: on which device the Value object should be created.
+        ///     readOnly: the Value is read-only if this flag is true.
         ///
         template <typename ElementType>
         static ValuePtr CreateBatchOfSequences(size_t dimension, const std::vector<std::vector<size_t>>& batchOfSequences, const DeviceDescriptor& device, bool readOnly = false)
         {
             return Create<ElementType>(dimension, batchOfSequences, {}, device, readOnly);
+        }
+
+        ///
+        /// Creates a new Value object containing a sequence of samples.
+        /// The sequence is represented by CSC sparse input format (http://docs.nvidia.com/cuda/cusparse/#compressed-sparse-column-format-csc)
+        /// The sequenceStartFlag specifies wehther this sequence is a new sequence or continuation of a previous sequence at the same index in the sequences list from a previous call to this method.
+        /// The sequence length is determined by the number of rows of the sparse matrix.
+        /// Parameters:
+        ///     ElementType: data type of the created Value object.Currently, float and double are supported.
+        ///     sequenceShape: the tensor shape plus the sequence axis. For sparse input, the tensor shape leading dimensionality must be the same as the total size of the tensor shape.
+        ///     sequenceData: the collection of indexes representing the sequence of samples.
+        ///     sequenceStartFlag : true indicates that it is a new sequence. false means a continuation of a previous sequence.
+        ///     device : on which device the Value object should be created.
+        ///     readOnly : the Value is read - only if this flag is true.
+        ///
+        template <typename ElementType>
+        CNTK_API static ValuePtr CreateSequence(const NDShape& sequenceShape, const SparseIndexType* colStarts, const SparseIndexType* rowIndices, const ElementType* nonZeroValues, size_t numNonZeroValues, bool sequenceStartFlag, const DeviceDescriptor& device, bool readOnly = false);
+
+        ///
+        /// Creates a new Value object containing a sequence of samples.
+        /// The sequence is represented by CSC sparse input format (http://docs.nvidia.com/cuda/cusparse/#compressed-sparse-column-format-csc)
+        /// The sequenceStartFlag specifies wehther this sequence is a new sequence or continuation of a previous sequence at the same index in the sequences list from a previous call to this method.
+        /// The sequence length is determined by the number of rows of the sparse matrix.
+        /// This sequence is a new sequence.
+        /// Parameters:
+        ///     ElementType: data type of the created Value object.Currently, float and double are supported.
+        ///     sequenceShape: the tensor shape plus the sequence axis. For sparse input, the tensor shape leading dimensionality must be the same as the total size of the tensor shape.
+        ///     sequenceData: the collection of indexes representing the sequence of samples.
+        ///     device : on which device the Value object should be created.
+        ///     readOnly : the Value is read - only if this flag is true.
+        ///
+        template <typename ElementType>
+        static ValuePtr CreateSequence(const NDShape& sequenceShape, const SparseIndexType* colStarts, const SparseIndexType* rowIndices, const ElementType* nonZeroValues, size_t numNonZeroValues, const DeviceDescriptor& device, bool readOnly = false)
+        {
+            return CreateSequence(sequenceShape, colStarts, rowIndices, nonZeroValues, numNonZeroValues, true, device, readOnly);
         }
 
         ///
