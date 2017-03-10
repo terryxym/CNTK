@@ -54,6 +54,11 @@ namespace Microsoft { namespace MSR { namespace CNTK {
         // Parses format with original HTK state align MLF format and state list and builds an MLFFrameRange.
         void Build(const vector<boost::iterator_range<char*>>& tokens, double htkTimeToFrame, const unordered_map<std::string, size_t>& stateTable);
 
+        ClassIdType ClassId() const { return m_classId;    }
+        uint32_t FirstFrame() const { return m_firstFrame; }
+        uint32_t NumFrames()  const { return m_numFrames;  }
+
+
     private:
         void VerifyAndSaveRange(const std::pair<size_t, size_t>& frameRange, size_t uid);
 
@@ -77,4 +82,4 @@ namespace Microsoft { namespace MSR { namespace CNTK {
         bool Parse(const SequenceDescriptor& utterance, const boost::iterator_range<char*>& utteranceData, std::vector<MLFFrameRange>& result, double htkTimeToFrame);
     };
 
-}}} // namespaces
+}}} // namespace

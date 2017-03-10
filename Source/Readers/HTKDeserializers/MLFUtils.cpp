@@ -164,6 +164,13 @@ namespace Microsoft { namespace MSR { namespace CNTK {
         size_t s = idx;
         size_t e = lines.size() - 1;
 
+        if (s >= e)
+        {
+            fprintf(stderr, "WARNING: sequence entry (%s) is empty\n", sequenceKey.c_str());
+            return false;
+        }
+
+
         utterance.resize(e - s);
         vector<boost::iterator_range<char*>> tokens;
         for (size_t i = s; i < e; i++)
@@ -171,8 +178,27 @@ namespace Microsoft { namespace MSR { namespace CNTK {
             tokens.clear();
             boost::split(tokens, lines[i], boost::is_any_of("\t"));
 
-            utterance[i - s].Build(tokens, htkTimeToFrame, m_states ? m_states->States() : unordered_map<string, size_t>{});
+            auto& current = utterance[i - s];
+            current.Build(tokens, htkTimeToFrame, m_states ? m_states->States() : unordered_map<string, size_t>{});
+
+            // Check that frames are sequential.
+            if (i > s)
+            {
+                const auto& previous = utterance[i - s - 1];
+                if (previous.FirstFrame() + previous.NumFrames() != current.FirstFrame())
+                {
+                    fprintf(stderr, "WARNING: Labels are not in the consecutive order MLF in label set: %s", sequenceKey.c_str());
+                    return false;
+                }
+            }
         }
+
+        if (utterance.front().FirstFrame() != 0)
+        {
+            fprintf(stderr, "WARNING: Invalid first frame in utterance: %s", sequenceKey.c_str());
+            return false;
+        }
+
         return true;
     }
 

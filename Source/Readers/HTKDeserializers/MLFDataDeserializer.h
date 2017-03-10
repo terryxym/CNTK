@@ -9,6 +9,7 @@
 #include "HTKDataDeserializer.h"
 #include "../HTKMLFReader/biggrowablevectors.h"
 #include "CorpusDescriptor.h"
+#include "MLFUtils.h"
 
 namespace Microsoft { namespace MSR { namespace CNTK {
 
@@ -43,7 +44,9 @@ public:
     virtual ChunkPtr GetChunk(ChunkIdType) override;
 
 private:
-    class MLFChunk;
+    class ChunkBase;
+    class SequenceChunk;
+    class FrameChunk;
     DISABLE_COPY_AND_MOVE(MLFDataDeserializer);
 
     void InitializeChunkDescriptions(CorpusDescriptorPtr corpus, const ConfigHelper& config, const std::wstring& stateListPath, size_t dimension);
@@ -54,7 +57,7 @@ private:
     // Vector that maps KeyType.m_sequence into an utterance ID (or SIZE_MAX if the key is not assigned).
     // This assumes that IDs introduced by the corpus are dense (which they right now, depending on the number of invalid / filtered sequences).
     // TODO compare perf to map we had before.
-    std::vector<size_t> m_keyToSequence;
+    std::vector<std::pair<size_t, const SequenceDescriptor*>> m_keyToSequence;
 
     // Number of sequences
     size_t m_numberOfSequences = 0;
@@ -85,8 +88,16 @@ private:
     // Flag that indicates whether a single speech frames should be exposed as a sequence.
     bool m_frameMode;
 
+    CorpusDescriptorPtr m_corpus;
+
+    size_t m_dimension;
+
     // Track phone boundaries
     bool m_withPhoneBoundaries;
+
+    StateTablePtr m_stateTable;
+
+    std::vector<std::pair<std::wstring, MLFIndexerPtr>> m_indexers;
 };
 
 

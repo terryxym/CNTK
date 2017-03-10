@@ -12,7 +12,7 @@
 
 namespace Microsoft { namespace MSR { namespace CNTK {
 
-    class MLFIndexer : private boost::noncopyable
+    class MLFIndexer : boost::noncopyable
     {
     public:
         MLFIndexer(FILE* file, bool isPrimary, size_t chunkSize = 32 * 1024 * 1024, size_t bufferSize = 2 * 1024 * 1024);
@@ -55,5 +55,7 @@ namespace Microsoft { namespace MSR { namespace CNTK {
 
         void GetMLF();
     };
+
+    typedef std::shared_ptr<MLFIndexer> MLFIndexerPtr;
 
 }}} // namespace
