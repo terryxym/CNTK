@@ -11,8 +11,6 @@
 %include <attribute.i>
 #include <exception.i>
 
-// include the unordered_map.i.
-%include "std_unordered_map.i"
 
 %{
     #include "CNTKLibrary.h"
@@ -299,3 +297,4 @@
 
 // Exception handling
 %include "CNTK_ExceptionHandling.i"
+
