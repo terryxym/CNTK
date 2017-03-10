@@ -1,10 +1,13 @@
 from __future__ import print_function
 import numpy as np
 import cntk as C
+from cntk import input_variable, parameter, Axis, NDArrayView
 from cntk.learner import UserLearner, sgd, learning_rate_schedule, UnitType
 from cntk.utils import ProgressPrinter
 from cntk.layers import Dense, Sequential
 
+        
+SEED = 1
 
 def generate_random_data(sample_size, feature_dim, num_classes):
     # Create synthetic data using NumPy.
@@ -20,23 +23,67 @@ def generate_random_data(sample_size, feature_dim, num_classes):
     return X, Y
 
 
-class MySgd(UserLearner):
+class MySgdNaive(UserLearner):
 
     def __init__(self, parameters, lr_schedule):
-        super(MySgd, self).__init__(parameters, lr_schedule)
+        super(MySgdNaive, self).__init__(parameters, lr_schedule)
 
     def update(self, gradient_values, training_sample_count, sweep_end):
         eta = self.learning_rate() / training_sample_count
         for p, g in gradient_values.items():
-            newp = p - eta * C.constant(g)
-            p.set_value(newp.eval(as_numpy=False).data())
+            new_p = p - eta * C.constant(g)
+            p.set_value(new_p.eval(as_numpy=False).data())
+        return True
+
+
+class MySgdFast(UserLearner):
+
+    def __init__(self, parameters, lr_schedule):
+        super(MySgdFast, self).__init__(parameters, lr_schedule)
+
+        self.new_p = {}
+        self.param_input = {}
+        self.grad_input = {}
+
+        # we just need the batch axis
+        ba = Axis.default_batch_axis()
+
+        self.learning_rate_input = input_variable(1, dynamic_axes=[ba], name='lr')
+        self.sample_count_input = input_variable(1, dynamic_axes=[ba], name='count')
+
+        eta = self.learning_rate_input / self.sample_count_input
+
+        # we need one graph per parameter shape
+        for param in parameters:
+            p_shape = param.shape
+            self.param_input[p_shape] = input_variable(p_shape, dynamic_axes=[ba])
+            self.grad_input[p_shape] = input_variable(p_shape, dynamic_axes=[ba])
+            result = self.param_input[p_shape] - eta * self.grad_input[p_shape]
+            self.new_p[p_shape] = result
+            # from cntk.graph import plot
+            # plot(self.new_p[p_shape], 'model_%s.pdf'%str(p_shape))
+
+    def update(self, gradient_values, training_sample_count, sweep_end):
+        for p, g in gradient_values.items():
+            new_p = self.new_p[p.shape]
+            param_input = self.param_input[p.shape]
+            grad_input = self.grad_input[p.shape]
+
+            data = {
+                    param_input: np.asarray(p),
+                    self.learning_rate_input: np.asarray([self.learning_rate()]),
+                    self.sample_count_input: np.asarray([training_sample_count]),
+                    grad_input: np.asarray(g)
+                    }
+            result = np.asarray(new_p.eval(data))
+            p.set_value(NDArrayView.from_data(result[0][0]))
+
         return True
 
 
 def ffnet(optimizer):
     inputs = 2
     outputs = 2
-    layers = 2
     hidden_dimension = 50
 
     # input variables denoting the features and label data
@@ -46,8 +93,8 @@ def ffnet(optimizer):
     # Instantiate the feedforward classification model
     my_model = Sequential([
         Dense(hidden_dimension, activation=C.sigmoid,
-              init=C.glorot_uniform(seed=98052)),
-        Dense(outputs, init=C.glorot_uniform(seed=98052))])
+              init=C.glorot_uniform(seed=SEED)),
+        Dense(outputs, init=C.glorot_uniform(seed=SEED))])
     z = my_model(features)
 
     ce = C.cross_entropy_with_softmax(z, label)
@@ -61,7 +108,7 @@ def ffnet(optimizer):
 
     # Get minibatches of training data and perform model training
     minibatch_size = 25
-    num_minibatches_to_train = 63
+    num_minibatches_to_train = 1000
 
     for i in range(num_minibatches_to_train):
         train_features, labels = generate_random_data(
@@ -79,11 +126,17 @@ def ffnet(optimizer):
 
 
 def test_user_learner():
-    np.random.seed(98052)
+    np.random.seed(SEED)
     # sort based on shape (this works because all parameters have different
     # shapes)
-    p1 = sorted([p.value for p in ffnet(sgd)],   key=lambda x: x.shape)
-    np.random.seed(98052)
-    p2 = sorted([p.value for p in ffnet(MySgd)], key=lambda x: x.shape)
-    for a, b in zip(p1, p2):
+    p1 = sorted([p.value for p in ffnet(sgd)], key=lambda x: x.shape)
+
+    np.random.seed(SEED)
+    p2 = sorted([p.value for p in ffnet(MySgdNaive)], key=lambda x: x.shape)
+
+    np.random.seed(SEED)
+    p3 = sorted([p.value for p in ffnet(MySgdFast)], key=lambda x: x.shape)
+
+    for a, b, c in zip(p1, p2, p3):
         assert np.allclose(a, b)
+        assert np.allclose(a, c)

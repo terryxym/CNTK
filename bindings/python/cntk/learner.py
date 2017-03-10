@@ -3,9 +3,9 @@
 # for full license information.
 # ==============================================================================
 
-import math
 from . import cntk_py, NDArrayView
 from .utils import typemap
+from .utils.swig_helper import map_if_possible
 from enum import Enum, unique
 import numpy as np
 
@@ -179,6 +179,8 @@ class UserLearner(cntk_py.Learner):
             `False` to indicate that learning has stopped for all of the
             parameters associated with this learner
         '''
+        map_if_possible(gradient_values)
+
         var_nd_map = {var: NDArrayView.from_data(val) for var, val in
                       gradient_values.items()}
 
