@@ -9,6 +9,7 @@ from cntk.layers import Dense, Sequential
         
 SEED = 1
 
+
 def generate_random_data(sample_size, feature_dim, num_classes):
     # Create synthetic data using NumPy.
     Y = np.random.randint(size=(sample_size, 1), low=0, high=num_classes)
@@ -39,41 +40,33 @@ class MySgdNaive(UserLearner):
 class MySgdFast(UserLearner):
 
     def __init__(self, parameters, lr_schedule):
-        super(MySgdFast, self).__init__(parameters, lr_schedule)
+        super(MySgdFast, self).__init__(parameters, lr_schedule, as_numpy=False)
 
         self.new_p = {}
-        self.param_input = {}
         self.grad_input = {}
 
         # we just need the batch axis
         ba = Axis.default_batch_axis()
 
-        self.learning_rate_input = input_variable(1, dynamic_axes=[ba], name='lr')
-        self.sample_count_input = input_variable(1, dynamic_axes=[ba], name='count')
+        self.sample_count_input = input_variable((), dynamic_axes=[ba], name='count')
 
-        eta = self.learning_rate_input / self.sample_count_input
+        lr = lr_schedule[0]  # assuming constant learning rate
+        eta = lr / self.sample_count_input
 
         # we need one graph per parameter shape
         for param in parameters:
             p_shape = param.shape
-            self.param_input[p_shape] = input_variable(p_shape, dynamic_axes=[ba])
             self.grad_input[p_shape] = input_variable(p_shape, dynamic_axes=[ba])
-            result = self.param_input[p_shape] - eta * self.grad_input[p_shape]
-            self.new_p[p_shape] = result
-            # from cntk.graph import plot
-            # plot(self.new_p[p_shape], 'model_%s.pdf'%str(p_shape))
+            self.new_p[p_shape] = param - eta * self.grad_input[p_shape]
 
     def update(self, gradient_values, training_sample_count, sweep_end):
         for p, g in gradient_values.items():
             new_p = self.new_p[p.shape]
-            param_input = self.param_input[p.shape]
             grad_input = self.grad_input[p.shape]
 
             data = {
-                    param_input: np.asarray(p),
-                    self.learning_rate_input: np.asarray([self.learning_rate()]),
-                    self.sample_count_input: np.asarray([training_sample_count]),
-                    grad_input: np.asarray(g)
+                    self.sample_count_input: np.asarray(training_sample_count),
+                    grad_input: g
                     }
             result = np.asarray(new_p.eval(data))
             p.set_value(NDArrayView.from_data(result[0][0]))
@@ -140,3 +133,14 @@ def test_user_learner():
     for a, b, c in zip(p1, p2, p3):
         assert np.allclose(a, b)
         assert np.allclose(a, c)
+
+
+if __name__ == '__main__':
+    import timeit
+    # t1 = timeit.timeit("user_learner.ffnet(sgd)", setup="from cntk.tests import user_learner; from cntk.learner import sgd", number=10)
+    # print(t1)
+    # t2 = timeit.timeit("user_learner.ffnet(user_learner.MySgdNaive)", setup="from cntk.tests import user_learner; from cntk.learner import sgd", number=10)
+    t3 = timeit.timeit("user_learner.ffnet(user_learner.MySgdFast)", setup="from cntk.tests import user_learner; from cntk.learner import sgd", number=10)
+    print(t3)
+
+
