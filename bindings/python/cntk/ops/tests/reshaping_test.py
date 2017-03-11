@@ -397,7 +397,7 @@ def test_op_gather_derived_dynamic_axes_equivalence(device_id, precision):
     input_data2.shape = (1, 1) + input_data2.shape
 
     res = z.eval({a: input_data1, b: input_data2})
-    expected_forward = [[[3.]]]
+    expected_forward = [[3.]]
     assert np.array_equal(res, expected_forward)
 
 
@@ -413,7 +413,7 @@ def test_op_gather_sparse(device_id):
     a_last = sequence.last(a)
     a_last_dense = times(a_last, np.eye(vocab_size))
     res = a_last_dense.eval({a : input_data})
-    assert np.array_equal(res, [[[0, 0, 0, 0, 0, 1]], [[0, 0, 0, 0, 1, 0]], [[0, 0, 1, 0, 0, 0]]])
+    assert np.array_equal(res, [[0, 0, 0, 0, 0, 1], [0, 0, 0, 0, 1, 0], [0, 0, 1, 0, 0, 0]])
 
     a_last_2 = sequence.slice(a, -2, 0)
     a_last_2_dense = times(a_last_2, np.eye(vocab_size))
@@ -501,9 +501,9 @@ def test_op_sequence_reduce_sum(device_id, precision):
     assert np.array_equal(actual_grad[2], np.asarray([[2.], [2.], [2.]]))
     
     res = sequence_sum_a_plus_sequence_sum_a.eval({a: a_data})
-    assert np.array_equal(res[0], np.asarray([[4.]]))
-    assert np.array_equal(res[1], np.asarray([[10.]]))
-    assert np.array_equal(res[2], np.asarray([[18.]]))
+    assert np.array_equal(res[0], np.asarray([4.]))
+    assert np.array_equal(res[1], np.asarray([10.]))
+    assert np.array_equal(res[2], np.asarray([18.]))
 
     # Verify that calling sequence reduction on a placeholder with known
     # shape but unknown dynamic axes does not result in a problem
@@ -512,6 +512,6 @@ def test_op_sequence_reduce_sum(device_id, precision):
     r.replace_placeholder(a)
     
     res = r.eval({a: a_data})
-    assert np.array_equal(res[0], np.asarray([[2.]]))
-    assert np.array_equal(res[1], np.asarray([[5.]]))
-    assert np.array_equal(res[2], np.asarray([[9.]]))
+    assert np.array_equal(res[0], np.asarray([2.]))
+    assert np.array_equal(res[1], np.asarray([5.]))
+    assert np.array_equal(res[2], np.asarray([9.]))

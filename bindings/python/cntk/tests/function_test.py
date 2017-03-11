@@ -48,9 +48,9 @@ def test_sequences_packed_in_single_ndarray():
     data = np.asarray([[1, 2], [2, 3]])
     op = sequence.last(input_with_sequence_axis)
     result = op.eval({input_with_sequence_axis : data})
-    assert np.array_equal(result, [[[2., 3.]]])
+    assert np.array_equal(result, [[2., 3.]])
 
     result = op.eval({input_with_sequence_axis : (data, [True, True])})
-    assert np.array_equal(result, [[[1., 2.]], [[2., 3.]]])
+    assert np.array_equal(result, [[1., 2.], [2., 3.]])
 
     
